@@ -143,6 +143,69 @@ def isOpponent(space):
             board[parseSpace(space)] == 1)
 
 
+def neighbor(space, direction):
+    """Get the adjacent space in a certain direction.
+
+    :param space: the space from which the neighbour is determined
+    :type space: str
+    :param direction: the direction
+
+    ::
+
+         6 1
+        5 · 2
+         4 3
+
+    1. northeast
+    2. east
+    3. southeast
+    4. southwest
+    5. west
+    6. northwest
+
+    :type direction: int
+    :raises Exception: Invalid direction
+
+    if the direction is not between ``1`` and ``6`` (inclusive)
+
+    :return: the neighbor space in standard notation | ``0`` if there is no
+             neighbor in the given direction
+
+    :rtype: str | int
+    """
+
+    global rows
+    global diagonals
+
+    space = parseSpace(space)
+
+    row = rows.index(space[0])
+    diagonal = diagonals.index(space[1])
+
+    if direction == 1:
+        row = row + 1
+        diagonal = diagonal + 1
+    elif direction == 2:
+        diagonal = diagonal + 1
+    elif direction == 3:
+        row = row - 1
+    elif direction == 4:
+        row = row - 1
+        diagonal = diagonal - 1
+    elif direction == 5:
+        diagonal = diagonal - 1
+    elif direction == 6:
+        row = row + 1
+    else:
+        raise Exception('Invalid direction ' + str(direction))
+
+    if (row < 0 or row >= len(rows) or diagonal < 0 or
+            diagonal >= len(diagonals)):
+        return 0  # off the board
+
+    return rows[row] + diagonals[diagonal]
+
+
 def parseSpace(space):
     """Convert any space valid notation to the standard notation.
 
