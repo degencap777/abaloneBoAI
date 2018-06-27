@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import interactivePlayer
+
+
 # black (X) = 1, white (O) = 2
 # Note that the AI is passed a modified board with its own marbles represented
 # by 1 and the opponent's marbles by -1.
