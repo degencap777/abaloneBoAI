@@ -75,6 +75,27 @@ def areStraightLine(spaces):
     return True
 
 
+def broadside(marbles, direction):
+    """Perform a broadside move.
+
+    .. warning:: This function should not be called directly, as it does not
+                 perform input validation, which could lead to unpredictable
+                 behavior. It is only intended as a help function for
+                 :func:`move`.
+
+    :param marbles: the marbles to be moved
+    :type marbles: list[str]
+    :param direction: the direction of movement
+
+    .. seealso:: :func:`move` for information on the direction parameter
+
+    :type direction: int
+    """
+
+    for marble in marbles:
+        move([marble], direction)
+
+
 def fillBoard():
     """Fill the ``board`` dict with the `default initial position
     <https://en.wikipedia.org/wiki/File:Abalone_standard.svg>`_.
@@ -98,6 +119,102 @@ def fillBoard():
             elif (row in ['H', 'I'] or
                   (row == 'G' and diagonal in ['5', '6', '7'])):
                 board[row + diagonal] = 2  # white
+
+
+def fromHeadToTail(spaces, direction):
+    """Sort a straight line of spaces by a certain direction so that the head
+    comes first.
+
+    :param spaces: a straight line of spaces
+    :type spaces: list[str]
+    :param direction: the direction in which the spaces are oriented
+
+    .. seealso:: :func:`move` for information on the direction parameter
+
+    :type direction: int
+    :raises Exception: Marbles are not in a straight line
+    :raises Exception: Moving *marbles* in direction is not an in-line move
+    :return: a sorted list of spaces
+    :rtype: list[str]
+    """
+
+    if not areStraightLine(spaces):
+        raise Exception('Marbles ' + ', '.join(spaces) +
+                        ' are not in a straight line')
+    same = sameRowAndDiagonal(spaces)
+    if (same['row'] and direction in [1, 3, 4, 6] or
+        same['diagonal'] and direction in [1, 2, 4, 5] or
+            same['diagonalR'] and direction in [2, 3, 5, 6]):
+        raise Exception('Moving ' + ', '.join(spaces) + ' in direction ' +
+                        str(direction) + ' is not an in-line move')
+    spaces.sort()
+    if direction in [1, 2, 6]:
+        spaces.reverse()
+    return spaces
+
+
+def inLine(marbles, direction):
+    """Perform an in-line move, sumito if applicable.
+
+    .. warning:: This function should not be called directly, as it does not
+                 perform input validation, which could lead to unpredictable
+                 behavior. It is only intended as a help function for
+                 :func:`move`.
+
+    :param marbles: the marbles to be moved
+    :type marbles: list[str]
+    :param direction: the direction of movement
+
+    .. seealso:: :func:`move` for information on the direction parameter
+
+    :type direction: int
+    :raises IllegalMoveException: *space* is not empty
+
+    if the destination space is already occupied
+
+    :raises IllegalMoveException: Moving *n* marbles with *m* own marble(s)
+
+    if the move cannot be made due to too few marbles
+    """
+
+    head = fromHeadToTail(marbles, direction)[0]
+
+    # destination: opponent -> sumito
+    opponentMarbles = []
+    if isOpponent(neighbor(head, direction)):
+        opponentHead = neighbor(head, direction)
+        opponentMarbles = [opponentHead]
+        while True:
+            nextMarble = neighbor(opponentHead, direction)
+            if isOpponent(nextMarble):
+                opponentHead = nextMarble
+                opponentMarbles.append(nextMarble)
+            elif isCurrentPlayer(nextMarble):
+                # The space after the opponent's line of marbles is already
+                # owned by the player, hence not empty.
+                raise IllegalMoveException(nextMarble + ' is not empty')
+            else:
+                break
+
+        # Valid sumito moves are 2 -> 1, 3 -> 1, 3 -> 2
+        if len(opponentMarbles) >= len(marbles):
+            raise IllegalMoveException('Moving ' + str(len(opponentMarbles)) +
+                                       ' marbles with ' + str(len(marbles)) +
+                                       'own marble(s)')
+
+    # The list starts with the marble closest to the current player's marbles
+    # which must be moved last.
+    opponentMarbles.reverse()
+    for opponentMarble in opponentMarbles:
+        move([opponentMarble], direction)
+
+    # destination: current player
+    if isCurrentPlayer(neighbor(head, direction)):
+        raise IllegalMoveException(neighbor(head, direction) + ' is not empty')
+
+    # destination: empty
+    for marble in fromHeadToTail(marbles, direction):
+        move([marble], direction)
 
 
 def isCurrentPlayer(space):
@@ -151,12 +268,12 @@ def isOpponent(space):
             board[parseSpace(space)] == 1)
 
 
-def neighbor(space, direction):
-    """Get the adjacent space in a certain direction.
+def move(marbles, direction):
+    """Perform a move in a specific direction.
 
-    :param space: the space from which the neighbour is determined
-    :type space: str
-    :param direction: the direction
+    :param marbles: the marbles to be moved
+    :type marbles: list[str]
+    :param direction: the direction of movement
 
     ::
 
@@ -170,6 +287,56 @@ def neighbor(space, direction):
     4. southwest
     5. west
     6. northwest
+
+    :type direction: int
+    :raises IllegalMoveException: Moving *n* marbles
+
+    if the number of marbles is not between ``1`` and ``3`` (inclusive)
+
+    :raises IllegalMoveException: Marbles are not in a straight line
+    :raises IllegalMoveException: *space* is not empty
+    """
+
+    global currentPlayer
+    global board
+
+    marbles = [parseSpace(marble) for marble in marbles]
+
+    if len(marbles) < 1 or len(marbles) > 3:
+        raise IllegalMoveException('Moving ' + str(len(marbles)) + ' marbles')
+    if not areStraightLine(marbles):
+        raise IllegalMoveException('Marbles ' + ', '.join(marbles) +
+                                   ' are not in a straight line')
+
+    # single
+    if len(marbles) == 1:
+        destination = neighbor(marbles[0], direction)
+        if destination == 0:
+            pass  # player moves opponent's marble off the board
+        elif not isEmpty(destination):
+            raise IllegalMoveException(str(destination) + ' is not empty')
+        else:
+            board[destination] = board[marbles[0]]
+        board[marbles[0]] = 0
+        return
+
+    same = sameRowAndDiagonal(marbles)
+    if (same['row'] and direction in [1, 3, 4, 6] or
+        same['diagonal'] and direction in [1, 2, 4, 5] or
+            same['diagonalR'] and direction in [2, 3, 5, 6]):
+        broadside(marbles, direction)
+    else:
+        inLine(marbles, direction)
+
+
+def neighbor(space, direction):
+    """Get the adjacent space in a certain direction.
+
+    :param space: the space from which the neighbour is determined
+    :type space: str
+    :param direction: the direction
+
+    .. seealso:: :func:`move` for information on the direction parameter
 
     :type direction: int
     :raises Exception: Invalid direction
