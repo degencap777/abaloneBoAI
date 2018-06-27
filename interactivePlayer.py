@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# Copyright (c) 2018 Scriptim
+# This code is licensed under the MIT License, see LICENSE.md
+
 
 def turn(board, opponentMove):
     """Receive input from the user to make a move.
