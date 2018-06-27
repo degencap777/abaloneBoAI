@@ -17,6 +17,14 @@ rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 diagonals = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 
+class IllegalMoveException(Exception):
+    """Custom Exception to be raised whenever a player performs an illegal
+    move.
+    """
+
+    pass
+
+
 def areStraightLine(spaces):
     """Check if the given spaces form a straight line.
 
