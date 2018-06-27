@@ -88,3 +88,20 @@ def runGame(player1, player2):
             print('Player ' + str(2 if game.currentPlayer == 1 else 1) +
             ' won the game!')
             sys.exit(1)
+
+
+if __name__ == "__main__":
+    initGame()
+
+    player1 = None
+    player2 = None
+
+    if player1 == None:
+        player1 = game.interactivePlayer
+    if player2 == None:
+        player2 = game.interactivePlayer
+
+    try:
+        runGame(player1, player2)
+    except KeyboardInterrupt:
+        sys.exit(137)
