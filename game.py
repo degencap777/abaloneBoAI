@@ -42,6 +42,100 @@ def fillBoard():
                 board[row + diagonal] = 2  # white
 
 
+def isCurrentPlayer(space):
+    """Check if a space is owned by the current player.
+
+    :param space: the space to be checked
+    :type space: str
+    :return: whether the space is owned by the current player
+    :rtype: bool
+    """
+
+    global currentPlayer
+    global board
+
+    if space == 0:
+        return False
+    return board[parseSpace(space)] == currentPlayer
+
+
+def isEmpty(space):
+    """Check if a space is empty.
+
+    :param space: the space to be checked
+    :type space: str
+    :return: whether the space is empty
+    :rtype: bool
+    """
+
+    global board
+
+    if space == 0:
+        return False
+    return board[parseSpace(space)] == 0
+
+
+def isOpponent(space):
+    """Check if a space is owned by the opponent player.
+
+    :param space: the space to be checked
+    :type space: str
+    :return: whether the space is owned by the opponent player
+    :rtype: bool
+    """
+
+    global currentPlayer
+    global board
+
+    if space == 0:
+        return False
+    return (board[parseSpace(space)] == 2 if currentPlayer == 1 else
+            board[parseSpace(space)] == 1)
+
+
+def parseSpace(space):
+    """Convert any space valid notation to the standard notation.
+
+    A valid string that denotes a space consists of a row letter (from ``A`` to
+    ``I``) and a diagonal number (from ``1`` to ``9``). The notation is
+    case-insensitive and does not require a specific order.
+
+    The standard notation starts with a capital row letter followed by a
+    diagonal number. It is used for the keys in the ``board`` dict, among
+    other things.
+
+    :param space: a space in any valid notation
+    :type space: str
+    :raises TypeError: Invalid type (str expected)
+    :raises Error: Invalid string length (2 expected)
+    :raises Error: Invalid string notation
+    :return: the standard notation for the given space
+    :rtype: str
+    """
+
+    global rows
+    global diagonals
+
+    if (space == 0):
+        return 0  # off the board
+
+    if not isinstance(space, str):
+        raise TypeError('Invalid type \'' + type(space).__name__ +
+                        '\' (str expected)')
+    if len(space) != 2:
+        raise Error('Invalid string length ' + str(len(space)) +
+                    ' (2 expected)')
+
+    space = space.upper()
+
+    if space[0] in rows and space[1] in diagonals:
+        return space
+    elif space[0] in diagonals and space[1] in rows:
+        return space[::-1]
+
+    raise Error('Invalid string notation ' + space)
+
+
 def printBoard():
     """Print the board to stdout.
 
@@ -92,3 +186,12 @@ def printBoard():
     boardStr += '       1 2 3 4 5'
 
     print(boardStr)
+
+
+def togglePlayer():
+    """Switch ``currentPlayer`` between ``1`` and ``2``.
+    """
+
+    global currentPlayer
+
+    currentPlayer = 2 if currentPlayer == 1 else 1
