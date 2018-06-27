@@ -17,6 +17,56 @@ rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 diagonals = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 
+def areStraightLine(spaces):
+    """Check if the given spaces form a straight line.
+
+    This is a required for a valid move.
+
+    :param spaces: a list of spaces
+    :type spaces: list[str]
+    :return: whether the spaces form a straight line
+    :rtype: bool
+    """
+
+    global rows
+    global diagonals
+
+    spaces = [parseSpace(space) for space in spaces]
+
+    if len(spaces) <= 1:
+        return True
+
+    # Check for duplicates.
+    if len(set(spaces)) != len(spaces):
+        return False
+
+    same = sameRowAndDiagonal(spaces)
+    if not same['row'] and not same['diagonal'] and not same['diagonalR']:
+        return False
+
+    # The lexicographical sorting ensures that successive spaces in the list
+    # are closest to each other on the board.
+    spaces.sort()
+    for space in range(1, len(spaces)):
+        prevRow = spaces[space - 1][0]
+        row = spaces[space][0]
+        deltaRow = abs(rows.index(prevRow) - rows.index(row))
+
+        prevDiagonal = spaces[space - 1][1]
+        diagonal = spaces[space][1]
+        deltaDiagonal = (abs(diagonals.index(prevDiagonal) -
+                             diagonals.index(diagonal)))
+
+        # The distance (delta) to the previous space is exactly 1 if they are
+        # adjacent.
+        if (same['row'] and deltaDiagonal != 1 or
+            same['diagonal'] and deltaRow != 1 or
+                same['diagonalR'] and (deltaDiagonal != 1 or deltaRow != 1)):
+            return False
+
+    return True
+
+
 def fillBoard():
     """Fill the ``board`` dict with the `default initial position
     <https://en.wikipedia.org/wiki/File:Abalone_standard.svg>`_.
@@ -186,6 +236,51 @@ def printBoard():
     boardStr += '       1 2 3 4 5'
 
     print(boardStr)
+
+
+def sameRowAndDiagonal(spaces):
+    """Indicate if the given spaces are in the same row and/or diagonal.
+
+    :param spaces: a list of spaces
+    :type spaces: list[str]
+    :return: a dict with three keys ``row``, ``diagonal`` and ``diagonalR``
+
+    - ``row`` is ``True`` if the spaces are in the same row (``A`` to ``I``).
+    - ``diagonal`` is ``True`` if the spaces are in the same diagonal (``1`` to
+      ``9``). This includes only the diagonals from northwest to southeast.
+    - ``diagonalR`` is ``True`` if the spaces are in the same diagonal. This
+      includes only the diagonals from northeast to southwest.
+
+    :rtype: dict[str, bool]
+    """
+
+    global rows
+    global diagonals
+
+    spaces = [parseSpace(space) for space in spaces]
+    sameRow = True
+    sameDiagonal = True
+    sameDiagonalR = True
+    for space in range(1, len(spaces)):
+        deltaRow = (abs(rows.index(spaces[0][0]) -
+                        rows.index(spaces[space][0])))
+        deltaDiagonal = (abs(diagonals.index(spaces[0][1]) -
+                             diagonals.index(spaces[space][1])))
+
+        if deltaRow != 0:
+            sameRow = False
+
+        if deltaDiagonal != 0:
+            sameDiagonal = False
+
+        if deltaRow != deltaDiagonal:
+            sameDiagonalR = False
+
+    return {
+        'row': sameRow,
+        'diagonal': sameDiagonal,
+        'diagonalR': sameDiagonalR
+    }
 
 
 def togglePlayer():
