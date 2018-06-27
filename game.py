@@ -381,6 +381,20 @@ def neighbor(space, direction):
     return rows[row] + diagonals[diagonal]
 
 
+def onOffBoard(player):
+    """Reduce the score of a player whose marble has been pushed off the board.
+
+    :param player: the player (``1`` or ``2``) that
+    :type player: int
+    """
+
+    global board
+    global score
+
+    index = 'p' + str(player)
+    score[index] = score[index] - 1
+
+
 def parseSpace(space):
     """Convert any space valid notation to the standard notation.
 
