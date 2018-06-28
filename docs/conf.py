@@ -11,7 +11,7 @@ author = 'Scriptim'
 version = '1.0.0'
 release = '1.0.0rc'
 
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'm2r']
 
 source_suffix = '.rst'
 master_doc = 'index'
