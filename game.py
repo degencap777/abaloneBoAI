@@ -402,7 +402,7 @@ def onOffBoard(player):
 
 
 def parseSpace(space):
-    """Convert any space valid notation to the standard notation.
+    """Convert any valid space notation to the standard notation.
 
     A valid string that denotes a space consists of a row letter (from ``A`` to
     ``I``) and a diagonal number (from ``1`` to ``9``). The notation is
