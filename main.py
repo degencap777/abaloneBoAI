@@ -27,6 +27,8 @@ def parseArgs():
                         help='python module for player 1 (black)')
     parser.add_argument('-2', dest='player2', default='interactivePlayer',
                         help='python module for player 2 (white)')
+    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
+                        help='verbose output')
 
     sys.argv = vars(parser.parse_args())
 
@@ -109,7 +111,8 @@ def runGame(player1, player2):
         except Exception:
             print('Player ' + str(game.currentPlayer) +
                   '\'s move caused an exception')
-            traceback.print_exc()
+            if sys.argv['verbose']:
+                traceback.print_exc()
             print('Player ' + str(2 if game.currentPlayer == 1 else 1) +
                   ' won the game!')
             sys.exit(1)
@@ -130,4 +133,6 @@ if __name__ == "__main__":
     try:
         runGame(player1, player2)
     except KeyboardInterrupt:
+        if sys.argv['verbose']:
+            print('Interrupted')
         sys.exit(137)
