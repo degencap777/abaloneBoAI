@@ -3,8 +3,6 @@
 # Copyright (c) 2018 Scriptim
 # This code is licensed under the MIT License, see LICENSE.md
 
-import interactivePlayer
-
 
 # black (X) = 1, white (O) = 2
 # Note that the AI is passed a modified board with its own marbles represented

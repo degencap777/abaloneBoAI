@@ -3,10 +3,32 @@
 # Copyright (c) 2018 Scriptim
 # This code is licensed under the MIT License, see LICENSE.md
 
+import argparse
 import game
+import importlib
+import os
 import random
 import sys
 import traceback
+
+
+def parseArgs():
+    """Parse the command line arguments.
+
+    :return: parsed arguments
+    :rtype: dict
+    """
+
+    parser = argparse.ArgumentParser(description='Abalone Battle of AIs',
+                                     epilog='Documentation: https://scriptim' +
+                                     '.github.io/Abalone-BoAI')
+    parser.add_argument('--version', action='version', version='1.0.0rc')
+    parser.add_argument('-1', dest='player1', default='interactivePlayer',
+                        help='python module for player 1 (black)')
+    parser.add_argument('-2', dest='player2', default='interactivePlayer',
+                        help='python module for player 2 (white)')
+
+    sys.argv = vars(parser.parse_args())
 
 
 def initGame():
@@ -94,15 +116,16 @@ def runGame(player1, player2):
 
 
 if __name__ == "__main__":
+    parseArgs()
+
+    # Add ./ais directory to path for importing ai modules
+    directory = os.path.abspath(os.path.dirname(__file__))
+    sys.path.append(os.path.join(directory, 'ais'))
+
+    player1 = importlib.import_module(sys.argv['player1'])
+    player2 = importlib.import_module(sys.argv['player2'])
+
     initGame()
-
-    player1 = None
-    player2 = None
-
-    if player1 == None:
-        player1 = game.interactivePlayer
-    if player2 == None:
-        player2 = game.interactivePlayer
 
     try:
         runGame(player1, player2)
