@@ -29,6 +29,8 @@ def parseArgs():
                         help='python module for player 2 (white)')
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                         help='verbose output')
+    parser.add_argument('-r', '--random', dest='random', action='store_true',
+                        help='start with random player')
 
     sys.argv = vars(parser.parse_args())
 
@@ -40,7 +42,7 @@ def initGame():
     game.fillBoard()
     game.printBoard()
 
-    if random.random() < 0.5:
+    if sys.argv['random'] and random.random() < 0.5:
         game.togglePlayer()
 
 
