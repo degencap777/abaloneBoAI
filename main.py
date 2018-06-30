@@ -43,7 +43,7 @@ def runGame(player1, player2):
 
         print('Player ' + str(game.currentPlayer) + ' is next')
         print('Score: ' + str(game.score['p1']) + ' : ' +
-        str(game.score['p2']))
+              str(game.score['p2']))
         game.printBoard()
 
         # A modified board is given to the player, in which 1 stands for the
@@ -63,7 +63,7 @@ def runGame(player1, player2):
                 lastMove = player2.turn(playerBoard, lastMove)
 
             print('Moving \'' + ', '.join(lastMove[0]) + '\' in direction ' +
-            str(lastMove[1]))
+                  str(lastMove[1]))
 
             for marble in lastMove[0]:
                 if game.isOpponent(marble):
@@ -78,18 +78,18 @@ def runGame(player1, player2):
 
         except game.IllegalMoveException as e:
             print('Player ' + str(game.currentPlayer) +
-            ' made an illegal move')
+                  ' made an illegal move')
             print(e)
             print('Player ' + str(2 if game.currentPlayer == 1 else 1) +
-            ' won the game!')
+                  ' won the game!')
             sys.exit(1)
 
         except Exception:
             print('Player ' + str(game.currentPlayer) +
-            '\'s move caused an exception')
+                  '\'s move caused an exception')
             traceback.print_exc()
             print('Player ' + str(2 if game.currentPlayer == 1 else 1) +
-            ' won the game!')
+                  ' won the game!')
             sys.exit(1)
 
 
