@@ -143,14 +143,14 @@ def fromHeadToTail(spaces, direction):
     """
 
     if not areStraightLine(spaces):
-        raise Exception('Marbles ' + ', '.join(spaces) +
-                        ' are not in a straight line')
+        raise Exception(f'Marbles {", ".join(spaces)} '
+                        'are not in a straight line')
     same = sameRowAndDiagonal(spaces)
     if (same['row'] and direction in [1, 3, 4, 6] or
         same['diagonal'] and direction in [1, 2, 4, 5] or
             same['diagonalR'] and direction in [2, 3, 5, 6]):
-        raise Exception('Moving ' + ', '.join(spaces) + ' in direction ' +
-                        str(direction) + ' is not an in-line move')
+        raise Exception(f'Moving {", ".join(spaces)} in direction {direction} '
+                        'is not an in-line move')
     spaces.sort()
     if direction in [1, 2, 6]:
         spaces.reverse()
@@ -196,14 +196,14 @@ def inLine(marbles, direction):
             elif isCurrentPlayer(nextMarble):
                 # The space after the opponent's line of marbles is already
                 # owned by the player, hence not empty.
-                raise IllegalMoveException(nextMarble + ' is not empty')
+                raise IllegalMoveException(f'{nextMarble} is not empty')
             else:
                 break
 
         # Valid sumito moves are 2 -> 1, 3 -> 1, 3 -> 2
         if len(opponentMarbles) >= len(marbles):
-            raise IllegalMoveException('Moving ' + str(len(opponentMarbles)) +
-                                       ' marbles with ' + str(len(marbles)) +
+            raise IllegalMoveException(f'Moving {len(opponentMarbles)} '
+                                       f'marbles with {len(marbles)} '
                                        'own marble(s)')
 
     # The list starts with the marble closest to the current player's marbles
@@ -214,7 +214,7 @@ def inLine(marbles, direction):
 
     # destination: current player
     if isCurrentPlayer(neighbor(head, direction)):
-        raise IllegalMoveException(neighbor(head, direction) + ' is not empty')
+        raise IllegalMoveException(f'{neighbor(head, direction)} is not empty')
 
     # destination: empty
     for marble in fromHeadToTail(marbles, direction):
@@ -307,10 +307,10 @@ def move(marbles, direction):
     marbles = [parseSpace(marble) for marble in marbles]
 
     if len(marbles) < 1 or len(marbles) > 3:
-        raise IllegalMoveException('Moving ' + str(len(marbles)) + ' marbles')
+        raise IllegalMoveException(f'Moving {len(marbles)} marbles')
     if not areStraightLine(marbles):
-        raise IllegalMoveException('Marbles ' + ', '.join(marbles) +
-                                   ' are not in a straight line')
+        raise IllegalMoveException(
+            f'Marbles {", ".join(marbles)} are not in a straight line')
 
     # single
     if len(marbles) == 1:
@@ -318,7 +318,7 @@ def move(marbles, direction):
         if destination == 0:
             pass  # player moves opponent's marble off the board
         elif not isEmpty(destination):
-            raise IllegalMoveException(str(destination) + ' is not empty')
+            raise IllegalMoveException(f'{destination} is not empty')
         else:
             board[destination] = board[marbles[0]]
         board[marbles[0]] = 0
@@ -376,7 +376,7 @@ def neighbor(space, direction):
     elif direction == 6:
         row = row + 1
     else:
-        raise Exception('Invalid direction ' + str(direction))
+        raise Exception(f'Invalid direction {direction}')
 
     if (row < 0 or row >= len(rows) or diagonal < 0 or
             diagonal >= len(diagonals)):
@@ -395,7 +395,7 @@ def onOffBoard(player):
     global board
     global score
 
-    index = 'p' + str(player)
+    index = f'p{player}'
     score[index] = score[index] - 1
 
 
@@ -426,11 +426,10 @@ def parseSpace(space):
         return 0  # off the board
 
     if not isinstance(space, str):
-        raise TypeError('Invalid type \'' + type(space).__name__ +
-                        '\' (str expected)')
+        raise TypeError(f'Invalid type \'{type(space).__name__}\' '
+                        '(str expected)')
     if len(space) != 2:
-        raise Error('Invalid string length ' + str(len(space)) +
-                    ' (2 expected)')
+        raise Error(f'Invalid string length {len(space)} (2 expected)')
 
     space = space.upper()
 
@@ -439,7 +438,7 @@ def parseSpace(space):
     elif space[0] in diagonals and space[1] in rows:
         return space[::-1]
 
-    raise Error('Invalid string notation ' + space)
+    raise Error(f'Invalid string notation {space}')
 
 
 def printBoard():
@@ -470,26 +469,27 @@ def printBoard():
         loggableBoard[space] = ('X' if board[space] == 1 else
                                 ('O' if board[space] == 2 else '·'))
 
-    boardStr = ''
-    boardStr += '    I ' + ' '.join([str(loggableBoard['I' + str(d)])
-                                     for d in range(5, 10)]) + '\n'
-    boardStr += '   H ' + ' '.join([str(loggableBoard['H' + str(d)])
-                                    for d in range(4, 10)]) + '\n'
-    boardStr += '  G ' + ' '.join([str(loggableBoard['G' + str(d)])
-                                   for d in range(3, 10)]) + '\n'
-    boardStr += ' F ' + ' '.join([str(loggableBoard['F' + str(d)])
-                                  for d in range(2, 10)]) + '\n'
-    boardStr += 'E ' + ' '.join([str(loggableBoard['E' + str(d)])
-                                 for d in range(1, 10)]) + '\n'
-    boardStr += ' D ' + ' '.join([str(loggableBoard['D' + str(d)])
-                                  for d in range(1, 9)]) + ' 9\n'
-    boardStr += '  C ' + ' '.join([str(loggableBoard['C' + str(d)])
-                                   for d in range(1, 8)]) + ' 8\n'
-    boardStr += '   B ' + ' '.join([str(loggableBoard['B' + str(d)])
-                                    for d in range(1, 7)]) + ' 7\n'
-    boardStr += '    A ' + ' '.join([str(loggableBoard['A' + str(d)])
-                                     for d in range(1, 6)]) + ' 6\n'
-    boardStr += '       1 2 3 4 5'
+    rowStr = {}
+    rowStr['A'] = " ".join([str(loggableBoard[f"A{d}"]) for d in range(1, 6)])
+    rowStr['B'] = " ".join([str(loggableBoard[f"B{d}"]) for d in range(1, 7)])
+    rowStr['C'] = " ".join([str(loggableBoard[f"C{d}"]) for d in range(1, 8)])
+    rowStr['D'] = " ".join([str(loggableBoard[f"D{d}"]) for d in range(1, 9)])
+    rowStr['E'] = " ".join([str(loggableBoard[f"E{d}"]) for d in range(1, 10)])
+    rowStr['F'] = " ".join([str(loggableBoard[f"F{d}"]) for d in range(2, 10)])
+    rowStr['G'] = " ".join([str(loggableBoard[f"G{d}"]) for d in range(3, 10)])
+    rowStr['H'] = " ".join([str(loggableBoard[f"H{d}"]) for d in range(4, 10)])
+    rowStr['I'] = " ".join([str(loggableBoard[f"I{d}"]) for d in range(5, 10)])
+
+    boardStr = (f'    I {rowStr["I"]}\n'
+                f'   H {rowStr["H"]}\n'
+                f'  G {rowStr["G"]}\n'
+                f' F {rowStr["F"]}\n'
+                f'E {rowStr["E"]}\n'
+                f' D {rowStr["D"]} 9\n'
+                f'  C {rowStr["C"]} 8\n'
+                f'   B {rowStr["B"]} 7\n'
+                f'    A {rowStr["A"]} 6\n'
+                f'       1 2 3 4 5')
 
     print(boardStr)
 

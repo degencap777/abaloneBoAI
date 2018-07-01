@@ -25,4 +25,4 @@ def turn(board, opponentMove):
         except KeyboardInterrupt as e:
             raise e
         except Exception as e:
-            print('Input exception: ' + str(e))
+            print(f'Input exception: {e}')
