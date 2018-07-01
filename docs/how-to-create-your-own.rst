@@ -40,8 +40,8 @@ called ``ai.py``, then you can load this module using the CLI as follows:
     python3 main.py -1 my-ai.ai
 
 
-``turn(board, opponent)``
--------------------------
+``turn(board, opponentMove)``
+-----------------------------
 
 This function shall return a tuple with a list and an integer value.
 
