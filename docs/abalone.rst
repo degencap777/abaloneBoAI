@@ -6,7 +6,7 @@ initially 14 marbles on a hexagonal board (`initial position <https://en.wikiped
 these marbles are moved. The first player to push six of the opponent's marbles
 off the board wins the game.
 
-After a random player has started, the game is played alternately. The player
+After player 1 (black) has started, the game is played alternately. The player
 in turn moves a straight line of either one, two or three marbles in one of six
 directions.
 
