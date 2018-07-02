@@ -316,7 +316,7 @@ def move(marbles, direction):
     if len(marbles) == 1:
         destination = neighbor(marbles[0], direction)
         if destination == 0:
-            pass  # player moves opponent's marble off the board
+            onOffBoard(board[marbles[0]])
         elif not isEmpty(destination):
             raise IllegalMoveException(f'{destination} is not empty')
         else:
@@ -378,8 +378,9 @@ def neighbor(space, direction):
     else:
         raise Exception(f'Invalid direction {direction}')
 
-    if (row < 0 or row >= len(rows) or diagonal < 0 or
-            diagonal >= len(diagonals)):
+    if (row < 0 or row >= len(rows) or
+        diagonal < 0 or diagonal >= len(diagonals) or
+            not f'{rows[row]}{diagonals[diagonal]}' in board):
         return 0  # off the board
 
     return rows[row] + diagonals[diagonal]
