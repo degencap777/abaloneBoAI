@@ -6,6 +6,7 @@
 import argparse
 import game
 import importlib
+import json
 import os
 import random
 import sys
@@ -55,6 +56,17 @@ def runGame(player1, player2):
     :type player2: module
     """
 
+    courseOfTheGame = {
+        'boardHistory': [],
+        'moveHistory': [],
+        'scoreHistory': [],
+        'startPlayer': None,
+        'winner': None,
+        'exitReason': None
+    }
+
+    courseOfTheGame['startPlayer'] = game.currentPlayer
+
     lastMove = None
 
     while True:
@@ -69,7 +81,11 @@ def runGame(player1, player2):
 
         print(f'Player {game.currentPlayer} is next')
         print(f'Score: {game.score["p1"]} : {game.score["p2"]}')
+        courseOfTheGame['scoreHistory'].append((game.score['p1'],
+                                                game.score['p2']))
+
         game.printBoard()
+        courseOfTheGame['boardHistory'].append(game.board.copy())
 
         # A modified board is given to the player, in which 1 stands for the
         # player and -1 for the opponent.
@@ -87,6 +103,8 @@ def runGame(player1, player2):
             else:
                 lastMove = player2.turn(playerBoard, lastMove)
 
+            courseOfTheGame['moveHistory'].append(lastMove)
+
             print(f'Moving \'{", ".join(lastMove[0])}\' in direction '
                   f'{lastMove[1]}')
 
@@ -102,19 +120,57 @@ def runGame(player1, player2):
             game.togglePlayer()
 
         except game.IllegalMoveException as e:
-            print(f'Player {game.currentPlayer} made an illegal move')
+            exitReason = f'Player {game.currentPlayer} made an illegal move'
             print(e)
-            print(f'Player {2 if game.currentPlayer == 1 else 1} '
-                  'won the game!')
+            courseOfTheGame['exitReason'] = exitReason
+            winner = 2 if game.currentPlayer == 1 else 1
+            print(f'Player {winner} won the game!')
+            courseOfTheGame['winner'] = winner
+            saveCourseOfTheGameToFile(courseOfTheGame)
             sys.exit(1)
 
         except Exception:
-            print(f'Player {game.currentPlayer}\'s move caused an exception')
+            exitReason = (f'Player {game.currentPlayer}\'s move caused an '
+                          'exception')
+            print(exitReason)
+            courseOfTheGame['exitReason'] = exitReason
             if sys.argv['verbose']:
                 traceback.print_exc()
-            print(f'Player {2 if game.currentPlayer == 1 else 1} '
-                  'won the game!')
+            winner = 2 if game.currentPlayer == 1 else 1
+            print(f'Player {winner} won the game!')
+            courseOfTheGame['winner'] = winner
+            saveCourseOfTheGameToFile(courseOfTheGame)
             sys.exit(1)
+
+    saveCourseOfTheGameToFile(courseOfTheGame)
+
+
+def saveCourseOfTheGameToFile(courseOfTheGame):
+    """Save the course of the game to a JSON file (``course_of_the_game.json``)
+    in the project directory.
+
+    :param courseOfTheGame: The course of the game to be saved
+
+    keys:
+
+    - ``boardHistory``: a list containing all states of the board during the
+      game in chronological order
+    - ``moveHistory``: a list of all moves, i. e. the return values of the
+      players' ``turn`` functions, during the game in chronological order
+    - ``scoreHistory``: a list of tuples of two integer values representing the
+      players' scores during the game in chronological order
+    - ``startPlayer``: the player (``1`` or ``2``) that started the game
+    - ``winner``: The player (``1`` or ``2``) that won the game
+    - ``exitReason``: the error message if an error has occurred
+
+    :type courseOfTheGame: dict
+    """
+
+    directory = os.path.abspath(os.path.dirname(__file__))
+    filepath = os.path.join(directory, 'course_of_the_game.json')
+    with open(filepath, 'w', encoding='utf-8') as file:
+        file.write(json.dumps(courseOfTheGame))
+        print(f'Saved course of the game to \'{filepath}\'')
 
 
 if __name__ == "__main__":
