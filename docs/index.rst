@@ -8,6 +8,7 @@ Documentation
 
    abalone
    cli
+   webview
    how-to-create-your-own
    main
    game
