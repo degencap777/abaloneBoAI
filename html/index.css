@@ -1,0 +1,137 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    font-family: sans-serif;
+
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    text-align: center;
+
+    background-color: #532d21;
+}
+
+#left,
+#middle,
+#right {
+    display: block;
+    float: left;
+
+    height: 100%;
+}
+
+#left,
+#right {
+    font-family: monospace;
+    font-size: 6em;
+    line-height: 100vh;
+
+    width: 25%;
+
+    vertical-align: bottom;
+}
+
+#left {
+    color: white;
+    background-color: black;
+}
+
+#right {
+    color: black;
+    background-color: white;
+}
+
+#middle {
+    width: 50%;
+}
+
+#board {
+    line-height: 0;
+
+    height: 60%;
+    padding-top: 5%;
+
+    user-select: none;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#board > span {
+    display: inline-block;
+
+    box-sizing: border-box;
+    width: 3.2vw;
+    max-width: 5.5vh;
+    height: 3.2vw;
+    max-height: 5.5vh;
+
+    border-radius: 50%;
+    background-color: #946252;
+}
+
+#board > span.black {
+    background: linear-gradient(20deg, #000 0%, #131313 50%, #292929 100%);
+    background-color: black;
+}
+
+#board > span.white {
+    background: linear-gradient(20deg, #9c9c9c 0%, #dfdfdf 50%, #fff 100%);
+    background-color: white;
+}
+
+#move {
+    font-size: 2.4vh;
+    line-height: 1.5;
+
+    height: 20%;
+}
+
+#move.black {
+    color: black;
+}
+
+#move.white {
+    color: white;
+}
+
+#move.error {
+    font-weight: bold;
+
+    color: #e62d2d;
+}
+
+#move > span.fa {
+    margin: 0 0.5em;
+}
+
+#controls {
+    user-select: none;
+}
+
+#controls > span {
+    font-size: 2vw;
+    line-height: 4vw;
+
+    display: inline-block;
+
+    width: 4vw;
+    height: 4vw;
+    margin: 1vw 2vw;
+
+    cursor: pointer;
+
+    border-radius: 50%;
+    background-color: #946252;
+}
+
+#controls > span.disabled {
+    cursor: default;
+
+    color: #222;
+    background-color: #7e5a51;
+}
