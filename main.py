@@ -23,7 +23,7 @@ def parseArgs():
     parser = argparse.ArgumentParser(description='Abalone Battle of AIs',
                                      epilog='Documentation: https://scriptim' +
                                      '.github.io/Abalone-BoAI')
-    parser.add_argument('--version', action='version', version='1.1.0rc')
+    parser.add_argument('--version', action='version', version='1.2.0rc')
     parser.add_argument('-1', dest='player1', default='interactivePlayer',
                         help='python module for player 1 (black)')
     parser.add_argument('-2', dest='player2', default='interactivePlayer',
