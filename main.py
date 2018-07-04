@@ -72,17 +72,22 @@ def runGame(player1, player2):
     while True:
         print()
 
-        if game.score['p1'] == 0:
-            print('Player 2 won the game!')
-            sys.exit(0)
-        if game.score['p2'] == 0:
-            print('Player 1 won the game!')
+        courseOfTheGame['scoreHistory'].append((game.score['p1'],
+                                                game.score['p2']))
+        courseOfTheGame['boardHistory'].append(game.board.copy())
+
+        if game.score['p1'] == 0 or game.score['p2'] == 0:
+            if game.score['p1'] == 0:
+                winner = 2
+            if game.score['p2'] == 0:
+                winner = 1
+            print(f'Player {winner} won the game!')
+            courseOfTheGame['winner'] = winner
+            saveCourseOfTheGameToFile(courseOfTheGame)
             sys.exit(0)
 
         print(f'Player {game.currentPlayer} is next')
         print(f'Score: {game.score["p1"]} : {game.score["p2"]}')
-        courseOfTheGame['scoreHistory'].append((game.score['p1'],
-                                                game.score['p2']))
 
         game.printBoard()
         courseOfTheGame['boardHistory'].append(game.board.copy())
