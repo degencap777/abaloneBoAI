@@ -1,10 +1,18 @@
 var move = 0
 
-var courseOfTheGame
-
-$.getJSON('../course_of_the_game.json', json => {
-    courseOfTheGame = json
-    update.all()
+$(document).ready(() => {
+    let query = window.location.search.substring(1)
+    let params = query.split("&")
+    for (let param of params) {
+        let pair = param.split('=')
+        if (pair[0].toLowerCase() === 'game') {
+            let script = document.createElement('script')
+            script.type = 'text/javascript'
+            script.src = `../results/${pair[1]}`
+            document.head.appendChild(script)
+            break
+        }
+    }
 })
 
 let update = {
@@ -16,10 +24,9 @@ let update = {
     },
     board: () => {
         for (let space in courseOfTheGame.boardHistory[move]) {
-            if (courseOfTheGame.boardHistory[move][space] === 0) {
-                $(`#space-${space}`).removeClass('black')
-                $(`#space-${space}`).removeClass('white')
-            } else if (courseOfTheGame.boardHistory[move][space] === 1) {
+            $(`#space-${space}`).removeClass('black')
+            $(`#space-${space}`).removeClass('white')
+            if (courseOfTheGame.boardHistory[move][space] === 1) {
                 $(`#space-${space}`).addClass('black')
             } else if (courseOfTheGame.boardHistory[move][space] === 2) {
                 $(`#space-${space}`).addClass('white')
@@ -34,13 +41,18 @@ let update = {
             $('#prev-move').addClass('disabled')
         }
 
-        if (move === courseOfTheGame.moveHistory.length - 1) {
+        if (move === courseOfTheGame.moveHistory.length) {
             $('#next-move').addClass('disabled')
         }
     },
     move: () => {
-        $('#move').html(`${courseOfTheGame.moveHistory[move][0].join(', ')}
-        <span class="fa fa-arrow-right"></span> ${courseOfTheGame.moveHistory[move][1]}`)
+        if (move === courseOfTheGame.moveHistory.length) {
+            $('#move').html('')
+        } else {
+            $('#move').html(`${courseOfTheGame.moveHistory[move][0].join(', ')}
+            <span class="fa fa-arrow-right"></span> ${courseOfTheGame.moveHistory[move][1]}`)
+        }
+
         $('#move').removeClass('error')
 
         $('#move').removeClass('black')
@@ -51,8 +63,8 @@ let update = {
             $('#move').addClass(courseOfTheGame.startPlayer === 1 ? 'white' : 'black')
         }
 
-        if (move === courseOfTheGame.moveHistory.length - 1) {
-            if (courseOfTheGame.exitReason !== undefined) {
+        if (move === courseOfTheGame.moveHistory.length) {
+            if (courseOfTheGame.exitReason) {
                 $('#move').append(`<br>${courseOfTheGame.exitReason}`)
                 $('#move').addClass('error')
             }
@@ -60,8 +72,10 @@ let update = {
         }
     },
     scores: () => {
-        $('#left').html(courseOfTheGame.scoreHistory[move][0])
-        $('#right').html(courseOfTheGame.scoreHistory[move][1])
+        if (courseOfTheGame.scoreHistory[move]) {
+            $('#left').html(courseOfTheGame.scoreHistory[move][0])
+            $('#right').html(courseOfTheGame.scoreHistory[move][1])
+        }
     }
 }
 

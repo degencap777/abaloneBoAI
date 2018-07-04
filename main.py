@@ -11,6 +11,7 @@ import os
 import random
 import sys
 import traceback
+import urllib.parse
 
 
 def parseArgs():
@@ -90,7 +91,6 @@ def runGame(player1, player2):
         print(f'Score: {game.score["p1"]} : {game.score["p2"]}')
 
         game.printBoard()
-        courseOfTheGame['boardHistory'].append(game.board.copy())
 
         # A modified board is given to the player, in which 1 stands for the
         # player and -1 for the opponent.
@@ -171,11 +171,25 @@ def saveCourseOfTheGameToFile(courseOfTheGame):
     :type courseOfTheGame: dict
     """
 
+    player1 = 'interactivePlayer'
+    player2 = 'interactivePlayer'
+    if 'player1' in sys.argv:
+        player1 = sys.argv['player1'].split(".")[0]
+    if 'player2' in sys.argv:
+        player2 = sys.argv['player2'].split(".")[0]
+
+    filename = f'{player1} -- {player2}.js'
     directory = os.path.abspath(os.path.dirname(__file__))
-    filepath = os.path.join(directory, 'course_of_the_game.json')
+    filepath = os.path.join(directory, 'results', filename)
+
     with open(filepath, 'w', encoding='utf-8') as file:
+        file.write('const courseOfTheGame = ')
         file.write(json.dumps(courseOfTheGame))
-        print(f'Saved course of the game to \'{filepath}\'')
+        file.write('\nupdate.all()')
+        filename = urllib.parse.quote(filename)
+        htmlFile = os.path.join(directory, 'html', 'index.html')
+        htmlFile = urllib.parse.quote(htmlFile)
+        print(f'\nOpen file://{htmlFile}?game={filename} in a web browser')
 
 
 if __name__ == "__main__":
