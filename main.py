@@ -25,9 +25,9 @@ def parseArgs():
                                      epilog='Documentation: https://scriptim' +
                                      '.github.io/Abalone-BoAI')
     parser.add_argument('--version', action='version', version='1.2.0rc')
-    parser.add_argument('-1', dest='player1', default='interactivePlayer',
+    parser.add_argument('-1', dest='player1', default='interactivePlayer.main',
                         help='python module for player 1 (black)')
-    parser.add_argument('-2', dest='player2', default='interactivePlayer',
+    parser.add_argument('-2', dest='player2', default='interactivePlayer.main',
                         help='python module for player 2 (white)')
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                         help='verbose output')
@@ -171,12 +171,8 @@ def saveCourseOfTheGameToFile(courseOfTheGame):
     :type courseOfTheGame: dict
     """
 
-    player1 = 'interactivePlayer'
-    player2 = 'interactivePlayer'
-    if 'player1' in sys.argv:
-        player1 = sys.argv['player1'].split(".")[0]
-    if 'player2' in sys.argv:
-        player2 = sys.argv['player2'].split(".")[0]
+    player1 = sys.argv['player1'].split(".")[0]
+    player2 = sys.argv['player2'].split(".")[0]
 
     filename = f'{player1} -- {player2}.js'
     directory = os.path.abspath(os.path.dirname(__file__))
