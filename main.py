@@ -150,9 +150,8 @@ def runGame(player1, player2):
     saveCourseOfTheGameToFile(courseOfTheGame)
 
 
-def saveCourseOfTheGameToFile(courseOfTheGame):
-    """Save the course of the game to a JSON file (``course_of_the_game.json``)
-    in the project directory.
+def save_course_of_the_game_to_file(course_of_the_game):
+    """Save the course of the game to a JSON file in the results directory.
 
     :param courseOfTheGame: The course of the game to be saved
 
