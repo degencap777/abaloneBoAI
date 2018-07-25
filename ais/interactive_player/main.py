@@ -4,13 +4,13 @@
 # This code is licensed under the MIT License, see LICENSE.md
 
 
-def turn(board, opponentMove):
+def turn(board, opponent_move):
     """Receive input from the user to make a move.
 
     :param board: the current state of the board
     :type board: dict
-    :param opponentMove: the opponent's last move
-    :type opponentMove: tuple(list[str], int) | None
+    :param opponent_move: the opponent's last move
+    :type opponent_move: tuple(list[str], int) | None
     :return: the move to be performed
     :rtype: tuple(list[str], int)
     """

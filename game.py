@@ -7,7 +7,7 @@
 # black (X) = 1, white (O) = 2
 # Note that the AI is passed a modified board with its own marbles represented
 # by 1 and the opponent's marbles by -1.
-currentPlayer = 1
+current_player = 1
 
 # Maps a space of the board to the player (1/2) to own it or 0 if the space is
 # empty. See the documentation for information on how the spaces are denoted.
@@ -29,7 +29,7 @@ class IllegalMoveException(Exception):
     pass
 
 
-def areStraightLine(spaces):
+def are_straight_line(spaces):
     """Check if the given spaces form a straight line.
 
     This is a required for a valid move.
@@ -43,7 +43,7 @@ def areStraightLine(spaces):
     global rows
     global diagonals
 
-    spaces = [parseSpace(space) for space in spaces]
+    spaces = [parse_space(space) for space in spaces]
 
     if len(spaces) <= 1:
         return True
@@ -52,28 +52,29 @@ def areStraightLine(spaces):
     if len(set(spaces)) != len(spaces):
         return False
 
-    same = sameRowAndDiagonal(spaces)
-    if not same['row'] and not same['diagonal'] and not same['diagonalR']:
+    same = same_row_and_diagonal(spaces)
+    if not same['row'] and not same['diagonal'] and not same['diagonal_r']:
         return False
 
     # The lexicographical sorting ensures that successive spaces in the list
     # are closest to each other on the board.
     spaces.sort()
     for space in range(1, len(spaces)):
-        prevRow = spaces[space - 1][0]
+        prev_row = spaces[space - 1][0]
         row = spaces[space][0]
-        deltaRow = abs(rows.index(prevRow) - rows.index(row))
+        delta_row = abs(rows.index(prev_row) - rows.index(row))
 
-        prevDiagonal = spaces[space - 1][1]
+        prev_diagonal = spaces[space - 1][1]
         diagonal = spaces[space][1]
-        deltaDiagonal = (abs(diagonals.index(prevDiagonal) -
-                             diagonals.index(diagonal)))
+        delta_diagonal = (abs(diagonals.index(prev_diagonal) -
+                              diagonals.index(diagonal)))
 
         # The distance (delta) to the previous space is exactly 1 if they are
         # adjacent.
-        if (same['row'] and deltaDiagonal != 1 or
-            same['diagonal'] and deltaRow != 1 or
-                same['diagonalR'] and (deltaDiagonal != 1 or deltaRow != 1)):
+        if (same['row'] and delta_diagonal != 1 or
+            same['diagonal'] and delta_row != 1 or
+                same['diagonal_r'] and (delta_diagonal != 1 or
+                                        delta_row != 1)):
             return False
 
     return True
@@ -100,7 +101,7 @@ def broadside(marbles, direction):
         move([marble], direction)
 
 
-def fillBoard():
+def fill_board():
     """Fill the ``board`` dict with the `default initial position
     <https://en.wikipedia.org/wiki/File:Abalone_standard.svg>`_.
     """
@@ -110,12 +111,12 @@ def fillBoard():
     global diagonals
 
     for row in rows:
-        rowIndex = rows.index(row)
+        row_index = rows.index(row)
 
-        diagonalsForRow = (diagonals[0:5 + rowIndex] if rowIndex <= 4 else
-                           diagonals[rowIndex - 4:])
+        diagonals_for_row = (diagonals[0:5 + row_index] if row_index <= 4 else
+                             diagonals[row_index - 4:])
 
-        for diagonal in diagonalsForRow:
+        for diagonal in diagonals_for_row:
             board[row + diagonal] = 0  # empty
             if (row in ['A', 'B'] or
                     (row == 'C' and diagonal in ['3', '4', '5'])):
@@ -125,7 +126,7 @@ def fillBoard():
                 board[row + diagonal] = 2  # white
 
 
-def fromHeadToTail(spaces, direction):
+def from_head_to_tail(spaces, direction):
     """Sort a straight line of spaces by a certain direction so that the head
     comes first.
 
@@ -142,13 +143,13 @@ def fromHeadToTail(spaces, direction):
     :rtype: list[str]
     """
 
-    if not areStraightLine(spaces):
+    if not are_straight_line(spaces):
         raise Exception(f'Marbles {", ".join(spaces)} '
                         'are not in a straight line')
-    same = sameRowAndDiagonal(spaces)
+    same = same_row_and_diagonal(spaces)
     if (same['row'] and direction in [1, 3, 4, 6] or
         same['diagonal'] and direction in [1, 2, 4, 5] or
-            same['diagonalR'] and direction in [2, 3, 5, 6]):
+            same['diagonal_r'] and direction in [2, 3, 5, 6]):
         raise Exception(f'Moving {", ".join(spaces)} in direction {direction} '
                         'is not an in-line move')
     spaces.sort()
@@ -157,7 +158,7 @@ def fromHeadToTail(spaces, direction):
     return spaces
 
 
-def inLine(marbles, direction):
+def in_line(marbles, direction):
     """Perform an in-line move, sumito if applicable.
 
     .. warning:: This function should not be called directly, as it does not
@@ -181,47 +182,47 @@ def inLine(marbles, direction):
     if the move cannot be made due to too few marbles
     """
 
-    head = fromHeadToTail(marbles, direction)[0]
+    head = from_head_to_tail(marbles, direction)[0]
 
     # destination: opponent -> sumito
-    opponentMarbles = []
-    if isOpponent(neighbor(head, direction)):
-        opponentHead = neighbor(head, direction)
-        opponentMarbles = [opponentHead]
+    opponent_marbles = []
+    if is_opponent(neighbor(head, direction)):
+        opponent_head = neighbor(head, direction)
+        opponent_marbles = [opponent_head]
         while True:
-            nextMarble = neighbor(opponentHead, direction)
-            if isOpponent(nextMarble):
-                opponentHead = nextMarble
-                opponentMarbles.append(nextMarble)
-            elif isCurrentPlayer(nextMarble):
+            next_marble = neighbor(opponent_head, direction)
+            if is_opponent(next_marble):
+                opponent_head = next_marble
+                opponent_marbles.append(next_marble)
+            elif is_current_player(next_marble):
                 # The space after the opponent's line of marbles is already
                 # owned by the player, hence not empty.
-                raise IllegalMoveException(f'{nextMarble} is not empty')
+                raise IllegalMoveException(f'{next_marble} is not empty')
             else:
                 break
 
         # Valid sumito moves are 2 -> 1, 3 -> 1, 3 -> 2
-        if len(opponentMarbles) >= len(marbles):
-            raise IllegalMoveException(f'Moving {len(opponentMarbles)} '
+        if len(opponent_marbles) >= len(marbles):
+            raise IllegalMoveException(f'Moving {len(opponent_marbles)} '
                                        f'marbles with {len(marbles)} '
                                        'own marble(s)')
 
     # The list starts with the marble closest to the current player's marbles
     # which must be moved last.
-    opponentMarbles.reverse()
-    for opponentMarble in opponentMarbles:
-        move([opponentMarble], direction)
+    opponent_marbles.reverse()
+    for opponent_marble in opponent_marbles:
+        move([opponent_marble], direction)
 
     # destination: current player
-    if isCurrentPlayer(neighbor(head, direction)):
+    if is_current_player(neighbor(head, direction)):
         raise IllegalMoveException(f'{neighbor(head, direction)} is not empty')
 
     # destination: empty
-    for marble in fromHeadToTail(marbles, direction):
+    for marble in from_head_to_tail(marbles, direction):
         move([marble], direction)
 
 
-def isCurrentPlayer(space):
+def is_current_player(space):
     """Check if a space is owned by the current player.
 
     :param space: the space to be checked
@@ -230,15 +231,15 @@ def isCurrentPlayer(space):
     :rtype: bool
     """
 
-    global currentPlayer
+    global current_player
     global board
 
     if space == 0:
         return False
-    return board[parseSpace(space)] == currentPlayer
+    return board[parse_space(space)] == current_player
 
 
-def isEmpty(space):
+def is_empty(space):
     """Check if a space is empty.
 
     :param space: the space to be checked
@@ -251,10 +252,10 @@ def isEmpty(space):
 
     if space == 0:
         return False
-    return board[parseSpace(space)] == 0
+    return board[parse_space(space)] == 0
 
 
-def isOpponent(space):
+def is_opponent(space):
     """Check if a space is owned by the opponent player.
 
     :param space: the space to be checked
@@ -263,13 +264,13 @@ def isOpponent(space):
     :rtype: bool
     """
 
-    global currentPlayer
+    global current_player
     global board
 
     if space == 0:
         return False
-    return (board[parseSpace(space)] == 2 if currentPlayer == 1 else
-            board[parseSpace(space)] == 1)
+    return (board[parse_space(space)] == 2 if current_player == 1 else
+            board[parse_space(space)] == 1)
 
 
 def move(marbles, direction):
@@ -301,14 +302,14 @@ def move(marbles, direction):
     :raises IllegalMoveException: *space* is not empty
     """
 
-    global currentPlayer
+    global current_player
     global board
 
-    marbles = [parseSpace(marble) for marble in marbles]
+    marbles = [parse_space(marble) for marble in marbles]
 
     if len(marbles) < 1 or len(marbles) > 3:
         raise IllegalMoveException(f'Moving {len(marbles)} marbles')
-    if not areStraightLine(marbles):
+    if not are_straight_line(marbles):
         raise IllegalMoveException(
             f'Marbles {", ".join(marbles)} are not in a straight line')
 
@@ -316,21 +317,21 @@ def move(marbles, direction):
     if len(marbles) == 1:
         destination = neighbor(marbles[0], direction)
         if destination == 0:
-            onOffBoard(board[marbles[0]])
-        elif not isEmpty(destination):
+            on_off_board(board[marbles[0]])
+        elif not is_empty(destination):
             raise IllegalMoveException(f'{destination} is not empty')
         else:
             board[destination] = board[marbles[0]]
         board[marbles[0]] = 0
         return
 
-    same = sameRowAndDiagonal(marbles)
+    same = same_row_and_diagonal(marbles)
     if (same['row'] and direction in [1, 3, 4, 6] or
         same['diagonal'] and direction in [1, 2, 4, 5] or
-            same['diagonalR'] and direction in [2, 3, 5, 6]):
+            same['diagonal_r'] and direction in [2, 3, 5, 6]):
         broadside(marbles, direction)
     else:
-        inLine(marbles, direction)
+        in_line(marbles, direction)
 
 
 def neighbor(space, direction):
@@ -356,7 +357,7 @@ def neighbor(space, direction):
     global rows
     global diagonals
 
-    space = parseSpace(space)
+    space = parse_space(space)
 
     row = rows.index(space[0])
     diagonal = diagonals.index(space[1])
@@ -386,7 +387,7 @@ def neighbor(space, direction):
     return rows[row] + diagonals[diagonal]
 
 
-def onOffBoard(player):
+def on_off_board(player):
     """Reduce the score of a player whose marble has been pushed off the board.
 
     :param player: the player (``1`` or ``2``) that
@@ -400,7 +401,7 @@ def onOffBoard(player):
     score[index] = score[index] - 1
 
 
-def parseSpace(space):
+def parse_space(space):
     """Convert any valid space notation to the standard notation.
 
     A valid string that denotes a space consists of a row letter (from ``A`` to
@@ -442,7 +443,7 @@ def parseSpace(space):
     raise Error(f'Invalid string notation {space}')
 
 
-def printBoard():
+def print_board():
     """Print the board to stdout.
 
     Player 1 (black) is represented by ``X``, player 2 (white) by ``O``, empty
@@ -465,47 +466,47 @@ def printBoard():
     global board
 
     # black = X, white = O, empty = ·
-    loggableBoard = {}
+    log_board = {}
     for space in board:
-        loggableBoard[space] = ('X' if board[space] == 1 else
-                                ('O' if board[space] == 2 else '·'))
+        log_board[space] = ('X' if board[space] == 1 else
+                            ('O' if board[space] == 2 else '·'))
 
-    rowStr = {}
-    rowStr['A'] = " ".join([str(loggableBoard[f"A{d}"]) for d in range(1, 6)])
-    rowStr['B'] = " ".join([str(loggableBoard[f"B{d}"]) for d in range(1, 7)])
-    rowStr['C'] = " ".join([str(loggableBoard[f"C{d}"]) for d in range(1, 8)])
-    rowStr['D'] = " ".join([str(loggableBoard[f"D{d}"]) for d in range(1, 9)])
-    rowStr['E'] = " ".join([str(loggableBoard[f"E{d}"]) for d in range(1, 10)])
-    rowStr['F'] = " ".join([str(loggableBoard[f"F{d}"]) for d in range(2, 10)])
-    rowStr['G'] = " ".join([str(loggableBoard[f"G{d}"]) for d in range(3, 10)])
-    rowStr['H'] = " ".join([str(loggableBoard[f"H{d}"]) for d in range(4, 10)])
-    rowStr['I'] = " ".join([str(loggableBoard[f"I{d}"]) for d in range(5, 10)])
+    row_str = {}
+    row_str['A'] = " ".join([str(log_board[f"A{d}"]) for d in range(1, 6)])
+    row_str['B'] = " ".join([str(log_board[f"B{d}"]) for d in range(1, 7)])
+    row_str['C'] = " ".join([str(log_board[f"C{d}"]) for d in range(1, 8)])
+    row_str['D'] = " ".join([str(log_board[f"D{d}"]) for d in range(1, 9)])
+    row_str['E'] = " ".join([str(log_board[f"E{d}"]) for d in range(1, 10)])
+    row_str['F'] = " ".join([str(log_board[f"F{d}"]) for d in range(2, 10)])
+    row_str['G'] = " ".join([str(log_board[f"G{d}"]) for d in range(3, 10)])
+    row_str['H'] = " ".join([str(log_board[f"H{d}"]) for d in range(4, 10)])
+    row_str['I'] = " ".join([str(log_board[f"I{d}"]) for d in range(5, 10)])
 
-    boardStr = (f'    I {rowStr["I"]}\n'
-                f'   H {rowStr["H"]}\n'
-                f'  G {rowStr["G"]}\n'
-                f' F {rowStr["F"]}\n'
-                f'E {rowStr["E"]}\n'
-                f' D {rowStr["D"]} 9\n'
-                f'  C {rowStr["C"]} 8\n'
-                f'   B {rowStr["B"]} 7\n'
-                f'    A {rowStr["A"]} 6\n'
-                f'       1 2 3 4 5')
+    board_str = (f'    I {row_str["I"]}\n'
+                 f'   H {row_str["H"]}\n'
+                 f'  G {row_str["G"]}\n'
+                 f' F {row_str["F"]}\n'
+                 f'E {row_str["E"]}\n'
+                 f' D {row_str["D"]} 9\n'
+                 f'  C {row_str["C"]} 8\n'
+                 f'   B {row_str["B"]} 7\n'
+                 f'    A {row_str["A"]} 6\n'
+                 f'       1 2 3 4 5')
 
-    print(boardStr)
+    print(board_str)
 
 
-def sameRowAndDiagonal(spaces):
+def same_row_and_diagonal(spaces):
     """Indicate if the given spaces are in the same row and/or diagonal.
 
     :param spaces: a list of spaces
     :type spaces: list[str]
-    :return: a dict with three keys ``row``, ``diagonal`` and ``diagonalR``
+    :return: a dict with three keys ``row``, ``diagonal`` and ``diagonal_r``
 
     - ``row`` is ``True`` if the spaces are in the same row (``A`` to ``I``).
     - ``diagonal`` is ``True`` if the spaces are in the same diagonal (``1`` to
       ``9``). This includes only the diagonals from northwest to southeast.
-    - ``diagonalR`` is ``True`` if the spaces are in the same diagonal. This
+    - ``diagonal_r`` is ``True`` if the spaces are in the same diagonal. This
       includes only the diagonals from northeast to southwest.
 
     :rtype: dict[str, bool]
@@ -514,36 +515,36 @@ def sameRowAndDiagonal(spaces):
     global rows
     global diagonals
 
-    spaces = [parseSpace(space) for space in spaces]
-    sameRow = True
-    sameDiagonal = True
-    sameDiagonalR = True
+    spaces = [parse_space(space) for space in spaces]
+    same_row = True
+    same_diagonal = True
+    same_diagonal_r = True
     for space in range(1, len(spaces)):
-        deltaRow = (abs(rows.index(spaces[0][0]) -
-                        rows.index(spaces[space][0])))
-        deltaDiagonal = (abs(diagonals.index(spaces[0][1]) -
-                             diagonals.index(spaces[space][1])))
+        delta_row = (abs(rows.index(spaces[0][0]) -
+                         rows.index(spaces[space][0])))
+        delta_diagonal = (abs(diagonals.index(spaces[0][1]) -
+                              diagonals.index(spaces[space][1])))
 
-        if deltaRow != 0:
-            sameRow = False
+        if delta_row != 0:
+            same_row = False
 
-        if deltaDiagonal != 0:
-            sameDiagonal = False
+        if delta_diagonal != 0:
+            same_diagonal = False
 
-        if deltaRow != deltaDiagonal:
-            sameDiagonalR = False
+        if delta_row != delta_diagonal:
+            same_diagonal_r = False
 
     return {
-        'row': sameRow,
-        'diagonal': sameDiagonal,
-        'diagonalR': sameDiagonalR
+        'row': same_row,
+        'diagonal': same_diagonal,
+        'diagonal_r': same_diagonal_r
     }
 
 
-def togglePlayer():
-    """Switch ``currentPlayer`` between ``1`` and ``2``.
+def toggle_player():
+    """Switch ``current_player`` between ``1`` and ``2``.
     """
 
-    global currentPlayer
+    global current_player
 
-    currentPlayer = 2 if currentPlayer == 1 else 1
+    current_player = 2 if current_player == 1 else 1

@@ -8,17 +8,17 @@ To create your own ai follow these steps:
 2. Create a new branch and check it out.
 3. Create a new subdirectory in the ``ais`` directory with the name of your AI.
 4. Create a Python file (``.py``) in that directory that implements
-   ``turn(board, opponentMove)``.
+   ``turn(board, opponent_move)``.
 
    ::
 
-       def turn(board, opponentMove):
+       def turn(board, opponent_move):
           """My AI.
 
           :param board: the current state of the board
           :type board: dict
-          :param opponentMove: the opponent's last move
-          :type opponentMove: tuple(list[str], int) | None
+          :param opponent_move: the opponent's last move
+          :type opponent_move: tuple(list[str], int) | None
           :return: the move to be performed
           :rtype: tuple(list[str], int)
           """
@@ -40,8 +40,8 @@ called ``ai.py``, then you can load this module using the CLI as follows:
     python3 main.py -1 my-ai.ai
 
 
-``turn(board, opponentMove)``
------------------------------
+``turn(board, opponent_move)``
+------------------------------
 
 This function shall return a tuple with a list and an integer value.
 
@@ -89,5 +89,5 @@ spaces and ``-1`` for the opponent's spaces.
 The standard notation, which is used for the keys in the board dict, starts
 with a capital row letter followed by a diagonal number.
 
-The ``opponentMove`` parameter contains the opponent's most recent move, i. e.
+The ``opponent_move`` parameter contains the opponent's most recent move, i. e.
 the returned value of the opponent's ``turn`` function.

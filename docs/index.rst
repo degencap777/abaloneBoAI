@@ -12,4 +12,4 @@ Documentation
    how-to-create-your-own
    main
    game
-   interactivePlayer
+   interactive_player
