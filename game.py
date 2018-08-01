@@ -11,7 +11,7 @@ current_player = 1
 
 # Maps a space of the board to the player (1/2) to own it or 0 if the space is
 # empty. See the documentation for information on how the spaces are denoted.
-board = {}
+global_board = {}
 
 # The score of a player decrements whenever a marble is pushed off the board by
 # the opponent.
@@ -80,7 +80,7 @@ def are_straight_line(spaces):
     return True
 
 
-def broadside(marbles, direction):
+def broadside(marbles, direction, board=global_board):
     """Perform a broadside move.
 
     .. warning:: This function should not be called directly, as it does not
@@ -95,18 +95,22 @@ def broadside(marbles, direction):
     .. seealso:: :func:`move` for information on the direction parameter
 
     :type direction: int
+    :param board: the board on which is played, defaults to global_board
+    :type board: dict
     """
 
     for marble in marbles:
-        move([marble], direction)
+        move([marble], direction, board)
 
 
-def fill_board():
+def fill_board(board=global_board):
     """Fill the ``board`` dict with the `default initial position
     <https://en.wikipedia.org/wiki/File:Abalone_standard.svg>`_.
+
+    :param board: the board on which is played, defaults to global_board
+    :type board: dict
     """
 
-    global board
     global rows
     global diagonals
 
@@ -158,7 +162,7 @@ def from_head_to_tail(spaces, direction):
     return spaces
 
 
-def in_line(marbles, direction):
+def in_line(marbles, direction, board=global_board):
     """Perform an in-line move, sumito if applicable.
 
     .. warning:: This function should not be called directly, as it does not
@@ -173,6 +177,8 @@ def in_line(marbles, direction):
     .. seealso:: :func:`move` for information on the direction parameter
 
     :type direction: int
+    :param board: the board on which is played, defaults to global_board
+    :type board: dict
     :raises IllegalMoveException: *space* is not empty
 
     if the destination space is already occupied
@@ -186,15 +192,15 @@ def in_line(marbles, direction):
 
     # destination: opponent -> sumito
     opponent_marbles = []
-    if is_opponent(neighbor(head, direction)):
+    if is_opponent(neighbor(head, direction), board):
         opponent_head = neighbor(head, direction)
         opponent_marbles = [opponent_head]
         while True:
             next_marble = neighbor(opponent_head, direction)
-            if is_opponent(next_marble):
+            if is_opponent(next_marble, board):
                 opponent_head = next_marble
                 opponent_marbles.append(next_marble)
-            elif is_current_player(next_marble):
+            elif is_current_player(next_marble, board):
                 # The space after the opponent's line of marbles is already
                 # owned by the player, hence not empty.
                 raise IllegalMoveException(f'{next_marble} is not empty')
@@ -211,61 +217,63 @@ def in_line(marbles, direction):
     # which must be moved last.
     opponent_marbles.reverse()
     for opponent_marble in opponent_marbles:
-        move([opponent_marble], direction)
+        move([opponent_marble], direction, board)
 
     # destination: current player
-    if is_current_player(neighbor(head, direction)):
+    if is_current_player(neighbor(head, direction), board):
         raise IllegalMoveException(f'{neighbor(head, direction)} is not empty')
 
     # destination: empty
     for marble in from_head_to_tail(marbles, direction):
-        move([marble], direction)
+        move([marble], direction, board)
 
 
-def is_current_player(space):
+def is_current_player(space, board=global_board):
     """Check if a space is owned by the current player.
 
     :param space: the space to be checked
     :type space: str
+    :param board: the board on which is played, defaults to global_board
+    :type board: dict
     :return: whether the space is owned by the current player
     :rtype: bool
     """
 
     global current_player
-    global board
 
     if space == 0:
         return False
     return board[parse_space(space)] == current_player
 
 
-def is_empty(space):
+def is_empty(space, board=global_board):
     """Check if a space is empty.
 
     :param space: the space to be checked
     :type space: str
+    :param board: the board on which is played, defaults to global_board
+    :type board: dict
     :return: whether the space is empty
     :rtype: bool
     """
-
-    global board
 
     if space == 0:
         return False
     return board[parse_space(space)] == 0
 
 
-def is_opponent(space):
+def is_opponent(space, board=global_board):
     """Check if a space is owned by the opponent player.
 
     :param space: the space to be checked
     :type space: str
+    :param board: the board on which is played, defaults to global_board
+    :type board: dict
     :return: whether the space is owned by the opponent player
     :rtype: bool
     """
 
     global current_player
-    global board
 
     if space == 0:
         return False
@@ -273,7 +281,7 @@ def is_opponent(space):
             board[parse_space(space)] == 1)
 
 
-def move(marbles, direction):
+def move(marbles, direction, board=global_board):
     """Perform a move in a specific direction.
 
     :param marbles: the marbles to be moved
@@ -294,6 +302,8 @@ def move(marbles, direction):
     6. northwest
 
     :type direction: int
+    :param board: the board on which is played, defaults to global_board
+    :type board: dict
     :raises IllegalMoveException: Moving *n* marbles
 
     if the number of marbles is not between ``1`` and ``3`` (inclusive)
@@ -303,7 +313,7 @@ def move(marbles, direction):
     """
 
     global current_player
-    global board
+    global global_board
 
     marbles = [parse_space(marble) for marble in marbles]
 
@@ -317,8 +327,9 @@ def move(marbles, direction):
     if len(marbles) == 1:
         destination = neighbor(marbles[0], direction)
         if destination == 0:
-            on_off_board(board[marbles[0]])
-        elif not is_empty(destination):
+            if board is global_board:
+                on_off_board(board[marbles[0]])
+        elif not is_empty(destination, board):
             raise IllegalMoveException(f'{destination} is not empty')
         else:
             board[destination] = board[marbles[0]]
@@ -329,9 +340,9 @@ def move(marbles, direction):
     if (same['row'] and direction in [1, 3, 4, 6] or
         same['diagonal'] and direction in [1, 2, 4, 5] or
             same['diagonal_r'] and direction in [2, 3, 5, 6]):
-        broadside(marbles, direction)
+        broadside(marbles, direction, board)
     else:
-        in_line(marbles, direction)
+        in_line(marbles, direction, board)
 
 
 def neighbor(space, direction):
@@ -354,6 +365,7 @@ def neighbor(space, direction):
     :rtype: str | int
     """
 
+    global global_board
     global rows
     global diagonals
 
@@ -381,7 +393,7 @@ def neighbor(space, direction):
 
     if (row < 0 or row >= len(rows) or
         diagonal < 0 or diagonal >= len(diagonals) or
-            not f'{rows[row]}{diagonals[diagonal]}' in board):
+            not f'{rows[row]}{diagonals[diagonal]}' in global_board):
         return 0  # off the board
 
     return rows[row] + diagonals[diagonal]
@@ -394,7 +406,6 @@ def on_off_board(player):
     :type player: int
     """
 
-    global board
     global score
 
     index = f'p{player}'
@@ -443,7 +454,7 @@ def parse_space(space):
     raise Error(f'Invalid string notation {space}')
 
 
-def print_board():
+def print_board(board=global_board):
     """Print the board to stdout.
 
     Player 1 (black) is represented by ``X``, player 2 (white) by ``O``, empty
@@ -461,9 +472,10 @@ def print_board():
            B X X X X X X 7
             A X X X X X 6
                1 2 3 4 5
-    """
 
-    global board
+    :param board: the board on which is played, defaults to global_board
+    :type board: dict
+    """
 
     # black = X, white = O, empty = ·
     log_board = {}

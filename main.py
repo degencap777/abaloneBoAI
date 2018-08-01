@@ -75,7 +75,7 @@ def run_game(p1, p2):
 
         course_of_the_game['scoreHistory'].append((game.score['p1'],
                                                     game.score['p2']))
-        course_of_the_game['boardHistory'].append(game.board.copy())
+        course_of_the_game['boardHistory'].append(game.global_board.copy())
 
         if game.score['p1'] == 0 or game.score['p2'] == 0:
             if game.score['p1'] == 0:
@@ -95,8 +95,8 @@ def run_game(p1, p2):
         # A modified board is given to the player, in which 1 stands for the
         # player and -1 for the opponent.
         player_board = {}
-        for space in game.board:
-            player = game.board[space]
+        for space in game.global_board:
+            player = game.global_board[space]
             if player == 0:
                 player_board[space] = 0
             else:
