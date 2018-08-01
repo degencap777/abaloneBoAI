@@ -191,12 +191,8 @@ def save_course_of_the_game_to_file(course_of_the_game):
 if __name__ == "__main__":
     parse_args()
 
-    # Add ./ais directory to path for importing ai modules
-    directory = os.path.abspath(os.path.dirname(__file__))
-    sys.path.append(os.path.join(directory, 'ais'))
-
-    p1 = importlib.import_module(sys.argv['p1'])
-    p2 = importlib.import_module(sys.argv['p2'])
+    p1 = importlib.import_module(f'ais.{sys.argv["p1"]}')
+    p2 = importlib.import_module(f'ais.{sys.argv["p2"]}')
 
     init_game()
 
