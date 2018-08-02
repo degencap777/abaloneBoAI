@@ -4,7 +4,7 @@
 # This code is licensed under the MIT License, see LICENSE.md
 
 import argparse
-import game
+import abalone
 import importlib
 import json
 import os
@@ -12,6 +12,9 @@ import random
 import sys
 import traceback
 import urllib.parse
+
+
+game = abalone.Game()
 
 
 def parse_args():
@@ -41,7 +44,6 @@ def init_game():
     """Set the game to its initial state and print the board.
     """
 
-    game.fill_board()
     game.print_board()
 
     if sys.argv['random'] and random.random() < 0.5:
@@ -74,8 +76,8 @@ def run_game(p1, p2):
         print()
 
         course_of_the_game['scoreHistory'].append((game.score['p1'],
-                                                    game.score['p2']))
-        course_of_the_game['boardHistory'].append(game.global_board.copy())
+                                                   game.score['p2']))
+        course_of_the_game['boardHistory'].append(game.board.copy())
 
         if game.score['p1'] == 0 or game.score['p2'] == 0:
             if game.score['p1'] == 0:
@@ -95,8 +97,8 @@ def run_game(p1, p2):
         # A modified board is given to the player, in which 1 stands for the
         # player and -1 for the opponent.
         player_board = {}
-        for space in game.global_board:
-            player = game.global_board[space]
+        for space in game.board:
+            player = game.board[space]
             if player == 0:
                 player_board[space] = 0
             else:
@@ -116,16 +118,16 @@ def run_game(p1, p2):
 
             for marble in last_move[0]:
                 if game.is_opponent(marble):
-                    raise game.IllegalMoveException(
+                    raise abalone.IllegalMoveException(
                         'Moving opponent\'s marble')
-                if game.neighbor(marble, last_move[1]) == 0:
-                    raise game.IllegalMoveException(
+                if abalone.neighbor(marble, last_move[1]) == 0:
+                    raise abalone.IllegalMoveException(
                         'Moving marble off the board')
 
             game.move(last_move[0], last_move[1])
             game.toggle_player()
 
-        except game.IllegalMoveException as e:
+        except abalone.IllegalMoveException as e:
             exit_reason = f'Player {game.current_player} made an illegal move'
             print(e)
             course_of_the_game['exitReason'] = exit_reason
