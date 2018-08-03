@@ -62,6 +62,20 @@ class Game:
         for marble in marbles:
             self.move([marble], direction)
 
+    def copy(self):
+        """Make a clone of the current state of the game.
+
+        :return: the clone
+        :rtype: Game
+        """
+
+        game_copy = Game()
+        game_copy.current_player = self.current_player
+        game_copy.board = self.board.copy()
+        game_copy.score = self.score.copy()
+
+        return game_copy
+
     def fill_board(self):
         """Fill the ``board`` dict with the `default initial position
         <https://en.wikipedia.org/wiki/File:Abalone_standard.svg>`_.
