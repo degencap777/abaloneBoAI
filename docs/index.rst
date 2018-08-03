@@ -6,10 +6,10 @@ Documentation
 .. toctree::
    :maxdepth: 1
 
-   abalone
+   abalone_game
    cli
    webview
    how-to-create-your-own
    main
-   game
+   abalone
    interactive_player
