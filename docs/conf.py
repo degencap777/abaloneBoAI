@@ -8,8 +8,8 @@ project = 'Abalone BoAI'
 copyright = '2018 Scriptim (MIT)'
 author = 'Scriptim'
 
-version = '2.0.0'
-release = '2.0.0'
+version = '2.1.0'
+release = '2.1.0'
 
 extensions = ['sphinx.ext.autodoc', 'm2r']
 
